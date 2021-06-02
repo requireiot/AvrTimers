@@ -1,0 +1,17 @@
+{
+	"name": "AvrTimers",
+	"build": {
+		"unflags": "-std=gnu++11",
+		"build_flags": "-std=gnu++14"
+	},
+    "frameworks": ["arduino"],
+	"platforms": ["atmelavr"],
+	"authors": [
+		{
+			"name": "Bernd Waldmann",
+			"email": "requireiot@mail.de",
+			"maintainer": true
+		}
+	],
+	"version": "0.1"
+}
