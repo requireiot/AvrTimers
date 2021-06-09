@@ -4,7 +4,7 @@
  * Created		: 7-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer1.cpp 1057 2021-06-01 17:32:19Z  $
+ * This Revision: $Id: AvrTimer1.cpp 1087 2021-06-09 09:32:32Z  $
  *
  * @brief  Abstraction for 16-bit AVR Timer/Counter 1. 
  */
@@ -111,6 +111,8 @@ uint32_t AvrTimer1::init(
 	if (cs==0) {	// T1 rate too low
 		return 0;
 	}
+
+    PRR &= ~_BV(PRTIM1);
 
 	m_polA = polA;
 	m_polB = polB;

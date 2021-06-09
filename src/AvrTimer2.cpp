@@ -5,7 +5,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer2.cpp 1057 2021-06-01 17:32:19Z  $
+ * This Revision: $Id: AvrTimer2.cpp 1087 2021-06-09 09:32:32Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 2, for periodic interrupts, also supports async mode.
  */ 
@@ -103,6 +103,9 @@ uint32_t AvrTimer2::init(
 	if (cs==0) {	// T2 rate too low
 		return 0;
 	}
+
+    PRR &= ~_BV(PRTIM2);
+    
 	m_prescale = pre;
 	m_async = async;
 	m_isr = isr;

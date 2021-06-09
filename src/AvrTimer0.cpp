@@ -4,7 +4,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer0.cpp 1057 2021-06-01 17:32:19Z  $
+ * This Revision: $Id: AvrTimer0.cpp 1087 2021-06-09 09:32:32Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 0, for periodic interrupts and PWM.
  */ 
@@ -111,6 +111,8 @@ uint32_t AvrTimer0::init(
 	if (cs==0) {	// T0 rate too low
 		return 0;
 	}
+
+    PRR &= ~_BV(PRTIM0);
 
 	m_polB = polB;
 	m_comB = polB ? ((polB==ActiveHigh) ? 2 : 3 ) : 0;

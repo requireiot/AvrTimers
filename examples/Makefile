@@ -1,14 +1,14 @@
 # Name		: Makefile
-# Project	: test bwAvrTimer
+# Project	: test AvrTimer
 # Author	: Bernd Waldmann
 # Created	: 23.04.2021
 # Tabsize	: 4
 #
-# This Revision: $Id: Makefile 1060 2021-06-02 08:58:18Z  $
+# This Revision: $Id: Makefile 1087 2021-06-09 09:32:32Z  $
 
 ## ----- General Flags
 
-PROJECT = test_bwAvrTimer
+PROJECT = test_AvrTimer
 MCU = atmega328p
 F_CPU = 8000000
 ROMSIZE = 30000

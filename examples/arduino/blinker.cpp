@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <AvrTimers.h>
-#define IMPLEMENT_ARDUINO_DEBUGSTREAM
+#define IMPLEMENT_DEBUGSTREAM_ARDUINO
 #include "debugstream.h"
 
 const int LED = A0; // PC0
