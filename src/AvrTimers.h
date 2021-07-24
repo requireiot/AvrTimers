@@ -4,7 +4,7 @@
  * Created		: 07-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimers.h 1057 2021-06-01 17:32:19Z  $
+ * This Revision: $Id: AvrTimers.h 1199 2021-07-24 10:25:25Z  $
  */ 
 
 /*
@@ -172,7 +172,6 @@ public:
 	static AvrTimer1* theInstance;
 
 	AvrTimer1(void);
-	//uint32_t init(uint32_t rate, Polarity polA, Polarity polB );
 	uint32_t init(uint8_t cs, uint16_t ocr, Polarity polA, Polarity polB );
 
 	void start(void);
@@ -220,7 +219,6 @@ public:
 	static AvrTimer2* theInstance;
 	
 	AvrTimer2(void);
-	//uint32_t init(uint32_t rate, uint32_t tickrate=0, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false);
 	uint32_t init(uint8_t cs, uint8_t ocr, uint8_t prescaler, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false);
 
 	void start(void);

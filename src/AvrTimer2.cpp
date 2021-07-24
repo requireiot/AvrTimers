@@ -5,7 +5,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer2.cpp 1087 2021-06-09 09:32:32Z  $
+ * This Revision: $Id: AvrTimer2.cpp 1199 2021-07-24 10:25:25Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 2, for periodic interrupts, also supports async mode.
  */ 
@@ -140,7 +140,7 @@ uint32_t AvrTimer2::init(
 		m_MillisPerTick = 0;
 	}
 
-	DEBUG_PRINTF("\r\nT2: F=%ld, CS=%u, OCR=%u, rate %lu Hz, %lu t/ms, ",
+	DEBUG_PRINTF(" T2: F=%ld, CS=%u, OCR=%u, rate %lu Hz, %lu t/s, ",
 		fclk, (unsigned)cs, (unsigned)ocr, arate, atick );
 	DEBUG_PRINTF("%d %s\r\n",
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,

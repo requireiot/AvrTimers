@@ -4,7 +4,7 @@
  * Created		: 7-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer1.cpp 1087 2021-06-09 09:32:32Z  $
+ * This Revision: $Id: AvrTimer1.cpp 1199 2021-07-24 10:25:25Z  $
  *
  * @brief  Abstraction for 16-bit AVR Timer/Counter 1. 
  */
@@ -150,7 +150,7 @@ uint32_t AvrTimer1::init(
 		m_MillisPerTick = 0;
 	}
 
-	DEBUG_PRINTF("\r\nT1: F=%lu, CS=%u, TOP=%u, rate %lu, ",
+	DEBUG_PRINTF(" T1: F=%lu, CS=%u, TOP=%u, rate %lu, ",
 		fclk, cs, m_top, arate);
 	DEBUG_PRINTF("%u %s\r\n",
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,
@@ -196,11 +196,9 @@ void AvrTimer1::setPWM_A(uint16_t pwm, uint16_t top)
 		m_enableA = true;
 		uint16_t ocr = ((uint32_t)pwm * m_top) / top;
 		OCR1A = ocr;
-		DEBUG_PRINTF("A:%d\r\n",ocr);
 	} else {
 		m_enableA = false;
 		SET( PIN_OC1A, m_comA==3);
-		DEBUG_PRINT("A:OFF\r\n");
 	}
 	setCR();
 }
@@ -216,11 +214,9 @@ void AvrTimer1::setPWM_B(uint16_t pwm, uint16_t top )
 		m_enableB = true;
 		uint16_t ocr = ((uint32_t)pwm * m_top) / top;
 		OCR1B = ocr;
-		DEBUG_PRINTF("B:%d\r\n",ocr);
 	} else {
 		m_enableB = false;
 		SET( PIN_OC1B, m_comB==3);
-		DEBUG_PRINT("B:OFF\r\n");
 	}
 	setCR();
 }

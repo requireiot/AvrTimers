@@ -4,7 +4,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer0.cpp 1087 2021-06-09 09:32:32Z  $
+ * This Revision: $Id: AvrTimer0.cpp 1199 2021-07-24 10:25:25Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 0, for periodic interrupts and PWM.
  */ 
@@ -88,6 +88,7 @@ void AvrTimer0::setPWM_B(uint8_t pwm, uint8_t top )
 		m_enableB = true;
 		uint16_t ocr = ((uint16_t)pwm * (uint16_t) m_ocr) / (uint16_t) top;
 		OCR0B = ocr;
+        //DEBUG_PRINTF("  T0: pwm=%d, ocrA=%d is %d, ocrB=%d is %d\r\n",pwm,m_ocr,OCR0A,ocr,OCR0B);
 	} else {
 		m_enableB = false;
 		SET( PIN_OC0B, m_comB==3 );
@@ -147,7 +148,7 @@ uint32_t AvrTimer0::init(
 		m_MillisPerTick = 0;
 	}
 
-	DEBUG_PRINTF("\r\nT0: F=%lu, CS=%u, OCR=%u, rate is %lu, ",
+	DEBUG_PRINTF(" T0: F=%lu, CS=%u, OCR=%u, rate is %lu, ",
 		fclk, (unsigned)cs, (unsigned)ocr, arate );
 	DEBUG_PRINTF("%d %s\r\n", 
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,
