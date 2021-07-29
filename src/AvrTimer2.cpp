@@ -5,7 +5,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer2.cpp 1199 2021-07-24 10:25:25Z  $
+ * This Revision: $Id: AvrTimer2.cpp 1212 2021-07-29 21:12:24Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 2, for periodic interrupts, also supports async mode.
  */ 
@@ -53,39 +53,6 @@ AvrTimer2::AvrTimer2(void) : AvrTimerBase()
 }
 
 //---------------------------------------------------------------------------
-#if 0
-/** Initialize TC2 registers for periodic interrupt, but do not start. 
- * @return actual rate [Hz]
-*/
-uint32_t AvrTimer2::init(
-	uint32_t rate,		///< desired interrupt rate in Hz
-	uint32_t tickrate,	///< desired rate to call task functions, in Hz, or 0 for "same as rate"
-	isr_t isr,			///< call this function for every interrupt
-	uint32_t fclk,		///< T2 clock rate in Hz, default is CPU clock
-	bool async			///< set T2 to async mode (external crystal on TOSC1/2), default is false
-	)
-{
-	//memset((void*)m_tasks,0,sizeof(m_tasks));
-	if (tickrate==0) tickrate=rate;
-	
-	// prescaler values for TC2, indexed by CS
-	static uint16_t prescalers[] = { 0,1,8,32,64,128,256,1024 };
-	#define lengthof(x) (sizeof((x))/sizeof((x)[0]))
-
-	uint8_t cs = 0;
-	uint32_t ocr;
-	do {
-		cs++;
-		ocr = fclk / (rate * (long)prescalers[cs]);
-	} while (cs < lengthof(prescalers) && ocr > 256uL );
-	if (ocr > 256uL) {
-		ocr = 255;
-		DEBUG_PRINTF("Timer2 rate too low: %lu",rate);
-	}
-	
-	return init(cs,ocr,rate / tickrate,isr,fclk,async);
-}
-#endif 
 
 /**
  * @brief  Initialize TC2 registers for periodic interrupt, but do not start.
