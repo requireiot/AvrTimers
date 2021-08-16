@@ -5,7 +5,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer2.cpp 1212 2021-07-29 21:12:24Z  $
+ * This Revision: $Id: AvrTimer2.cpp 1236 2021-08-16 09:24:37Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 2, for periodic interrupts, also supports async mode.
  */ 
@@ -27,8 +27,10 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include "debugstream.h"
 #include "AvrTimers.h"
+#if DEBUG_AVRTIMERS
+ #include "debugstream.h"
+#endif
 
 AvrTimer2* AvrTimer2::theInstance = NULL;
 
@@ -37,7 +39,7 @@ AvrTimer2* AvrTimer2::theInstance = NULL;
 ISR (TIMER2_COMPA_vect)
 {
 	sei();
-	AvrTimer2::theInstance->call_tasks();
+	AvrTimer2::theInstance->isr();
 }
 
 /** 
@@ -59,12 +61,12 @@ AvrTimer2::AvrTimer2(void) : AvrTimerBase()
  * @return uint32_t  actual rate [Hz] or 0 if the rate can't be achieved
 */
 uint32_t AvrTimer2::init(
-	uint8_t cs,		///< clock select, see datasheet
-	uint8_t ocr,	///< timer TOP value, goes to ICR1
-	uint8_t pre,	///< one tick every `pre` interrupts
-	isr_t isr,		///< call this from every interrupt
-	uint32_t fclk,	///< T2 clock rate in Hz, default is CPU clock
-	bool async		///< set T2 to async mode (external crystal on TOSC1/2), default is false
+	uint8_t     cs,		    ///< clock select, see datasheet
+	uint8_t     ocr,	    ///< timer TOP value
+	uint8_t     pre,	    ///< one tick every `pre` interrupts
+	isr_t       isr,		///< call this from every interrupt
+	uint32_t    fclk,	    ///< T2 clock rate in Hz, default is CPU clock
+	bool        async		///< set T2 to async mode (external crystal on TOSC1/2), default is false
 	)
 {
 	if (cs==0) {	// T2 rate too low
@@ -95,9 +97,9 @@ uint32_t AvrTimer2::init(
 	TIFR2  = _BV(TOV2)|_BV(OCF2A)|_BV(OCF2B);	// clear interrupts
 
 	uint32_t arate = fclk / (AvrTimer2::T2_div[cs] * ocr);
-	uint32_t atick = arate / m_prescale;
 
 #if DEBUG_AVRTIMERS
+	uint32_t atick = arate / m_prescale;
 
 	if (atick <= 1000) {
 		m_MillisPerTick = 1000 / atick;
@@ -112,11 +114,12 @@ uint32_t AvrTimer2::init(
 	DEBUG_PRINTF("%d %s\r\n",
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,
 		m_MillisPerTick ? "ms/t" : "t/ms" );
-
 #endif // DEBUG_AVRTIMERS
 
 	return arate;
 }
+
+//---------------------------------------------------------------------------
 
 /** @brief start TC2 interrupts. */
 void AvrTimer2::start(void)
@@ -125,6 +128,7 @@ void AvrTimer2::start(void)
 	TIMSK2 = _BV(OCIE2A);						// enable overflow interrupt
 }
 
+//---------------------------------------------------------------------------
 
 /** @brief stop TC2 interrupts. */
 void AvrTimer2::stop(void)
@@ -135,7 +139,7 @@ void AvrTimer2::stop(void)
 //---------------------------------------------------------------------------
 
 /// @brief Update `millis` etc counters, and call all registered callback functions 
-void AvrTimer2::call_tasks(void)
+void AvrTimer2::isr(void)
 {
 	static uint8_t precount=1;
 	

@@ -1,10 +1,10 @@
 /**
  * @file 		  AvrTimer1.cpp
- * Author		: Bernd Waldmann
+ * @author		  Bernd Waldmann
  * Created		: 7-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer1.cpp 1199 2021-07-24 10:25:25Z  $
+ * This Revision: $Id: AvrTimer1.cpp 1236 2021-08-16 09:24:37Z  $
  *
  * @brief  Abstraction for 16-bit AVR Timer/Counter 1. 
  */
@@ -26,9 +26,11 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include "stdpins.h"
-#include "debugstream.h"
+#include "stdpins.h"        // https://github.com/requireiot/stdpins
 #include "AvrTimers.h"
+#if DEBUG_AVRTIMERS
+ #include "debugstream.h"   // https://github.com/requireiot/debugstream
+#endif
 
 #define T1WGM 14
 
@@ -62,37 +64,6 @@ AvrTimer1::AvrTimer1(void) : AvrTimerBase(),
 }
 
 //---------------------------------------------------------------------------
-
-#if 0
-/** 
- * @brief Initialize TC1 registers for periodic interrupt, but do not start. 
- * 
- * @param rate = desired interrupt rate in Hz
- * @param polA = desired polarity of OCR1A pin (active high or low or disabled)
- * @param polB = desired polarity of OCR1B pin (active high or low or disabled)
- * @return actual interrupt rate in Hz
-*/
-uint32_t AvrTimer1::init(uint32_t rate, Polarity polA, Polarity polB )
-{
-	const uint32_t fclk = F_CPU;
-	uint32_t top;
-	// prescaler values for TC1, indexed by CS
-	static uint16_t prescalers[] = { 0,1,8,64,256,1024 };
-	#define lengthof(x) (sizeof((x))/sizeof((x)[0]))
-
-	uint8_t cs = 0;
-	do {
-		top = fclk / (rate * (long)prescalers[++cs]);
-	} while (cs < lengthof(prescalers)-1 && top > 65535uL );
-	if (top > 65535uL) {
-		top = 65535uL;
-		cs=0;
-		DEBUG_PRINTF("T1 rate too low: %lu",rate);
-	}
-	
-	return init(cs,top,polA,polB);
-}
-#endif 
 
 /**
  * @brief Initialize TC1 registers for periodic interrupt, but do not start.
@@ -161,6 +132,7 @@ uint32_t AvrTimer1::init(
 	return arate;	
 }
 
+//---------------------------------------------------------------------------
 
 /** @brief start TC1 interrupts. */
 void AvrTimer1::start(void)
@@ -169,6 +141,7 @@ void AvrTimer1::start(void)
 	TIMSK1 = _BV(TOIE1);	    	// enable overflow interrupt
 }
 
+//---------------------------------------------------------------------------
 
 /** @brief stop TC1 interrupts. */
 void AvrTimer1::stop(void)
@@ -176,6 +149,7 @@ void AvrTimer1::stop(void)
 	TIMSK1 &= ~_BV(TOIE1);						// enable overflow interrupt
 }
 
+//---------------------------------------------------------------------------
 
 void AvrTimer1::setCR()
 {
@@ -185,6 +159,7 @@ void AvrTimer1::setCR()
 			;
 }
 
+//---------------------------------------------------------------------------
 
 /** @brief set PWM duty cycle on OCR1A
  * @param pwm  duty cycle between 0 and `top`
@@ -203,6 +178,7 @@ void AvrTimer1::setPWM_A(uint16_t pwm, uint16_t top)
 	setCR();
 }
 
+//---------------------------------------------------------------------------
 
 /** @brief set PWM duty cycle on OCR1B
  * @param pwm  duty cycle between 0 and `top`

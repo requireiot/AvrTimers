@@ -1,10 +1,10 @@
 /**
  * @file 		  AvrTimers.h
- * Author		: Bernd Waldmann
+ * @author		  Bernd Waldmann
  * Created		: 07-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimers.h 1199 2021-07-24 10:25:25Z  $
+ * This Revision: $Id: AvrTimers.h 1236 2021-08-16 09:24:37Z  $
  */ 
 
 /*
@@ -22,6 +22,7 @@
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include <stddef.h>
+#include <math.h>
 
 #ifndef F_CPU	// keep syntax checker happy
  #define F_CPU 8000000
@@ -33,11 +34,11 @@
  @brief Abstraction for timers with multiple event handlers, and PWM channels.
  
  For each timer, the interrupt rate is specified in Hertz, and then the appropriate
- prescaler and divider values are calculated by teh code in constexpr functions, 
- i.e. at compile time, without a computational burden on the microcontroller side.
+ prescaler and divider values are calculated in constexpr functions, i.e. at compile time, 
+ without a computational burden on the microcontroller side.
 
  All timers support
- - regular interrupts, withthe rate specified in Hz
+ - regular interrupts, with the rate specified in Hz
  - maintaining a milliceconds counter, similar to Arduino millis()
  - calling multiple event handler functions for every interrupt or every N interrupts
 
@@ -61,19 +62,22 @@
  @{ 
  */
 
-// if this is defined, initialization routines print parameters via UART
+// if this is defined !=0, initialization routines print messages via debugprint library
 #ifndef DEBUG_AVRTIMERS
- #define DEBUG_AVRTIMERS 1
+ #define DEBUG_AVRTIMERS 0
 #endif 
 
 #ifndef ARDUINO
  unsigned long millis();
 #endif
 
-
-/// @brief Base class for all Timers: call multiple event handlers
+/**
+ * @brief Base class for all Timers: call multiple event handlers
+ * 
+ */
 class AvrTimerBase {
 public:
+    /// polarity of PWM output
 	enum Polarity { ActiveHigh=1, Disabled=0, ActiveLow=-1 };
 	/// callback function, called once per interrupt
 	typedef void (*isr_t)(void);
@@ -87,53 +91,53 @@ public:
 		void*	arg;
 	} task_t;
 	static const int MAX_TIMER_TASKS = 4;
-	/// pointer to singleton instance, used by ISR
-	static AvrTimerBase* theInstance;
+	// pointer to singleton instance, used by ISR
+	//static AvrTimerBase* theInstance;
 
 	AvrTimerBase(void);
 
 	uint32_t get_millis();
-	void add_task(uint16_t scale, callback_t isr, void* arg=NULL);
+	void add_task(uint16_t scale, callback_t cb, void* arg=NULL);
 	void call_tasks(void);
 	void handle_millis() { m_handle_millis=true; }
 protected:
-	volatile uint32_t m_millis;		// increments every millisecond
-	task_t m_tasks[MAX_TIMER_TASKS];
-	uint8_t m_nTasks;
-	uint8_t m_MillisPerTick;
-	uint8_t m_TicksPerMilli;
-	bool m_handle_millis;
+	volatile uint32_t m_millis;		
+	task_t      m_tasks[MAX_TIMER_TASKS];
+	uint8_t     m_nTasks;
+	uint8_t     m_MillisPerTick;
+	uint8_t     m_TicksPerMilli;
+	bool        m_handle_millis;
 };
 
 
 
-/// @brief Abstraction of Timer/Counter 0, supports 1 PWM channel (OC0B)
+/**
+ * @brief Abstraction of Timer/Counter 0, supports 1 PWM channel (OC0B)
+ * 
+ */
 class AvrTimer0 : public AvrTimerBase 
 {
 protected:
-	uint8_t m_ocr;
-	bool m_enableB;
-	Polarity m_polB;
-	uint8_t m_comB;
+	uint8_t     m_ocr;
+	bool        m_enableB;
+	Polarity    m_polB;
+	uint8_t     m_comB;
 
 	/// prescaler per clock-select value (see datasheet)
-	static constexpr uint32_t T0_div[] = { 0,1,8,64,256,1024 };
+	static constexpr uint32_t T0_div[] = { 1,1,8,64,256,1024 };
 
 	static constexpr uint8_t calc_cs( uint32_t rate );
 	static constexpr uint8_t calc_ocr( uint32_t rate );
-	static constexpr uint8_t calc_pre( uint32_t rate, uint32_t tickrate );
 
 	void setCR();
+	uint32_t init(uint8_t cs, uint8_t ocr, Polarity polB );
 public:
 	/// pointer to singleton instance, used by ISR
 	static AvrTimer0* theInstance;
 
 	AvrTimer0(void);
-	uint32_t init(uint8_t cs, uint8_t ocr, Polarity polB );
-
 	void start(void);
 	void stop(void);
-
     void setPWM_B(uint8_t pwm, uint8_t top=UINT8_MAX);
 
 	/**
@@ -143,40 +147,38 @@ public:
 	 */
 	void begin(uint32_t rate, Polarity polB=Disabled )	
 		{ init( calc_cs(rate), calc_ocr(rate), polB ); }
-
 };
 
 
-/// @brief  Abstraction of Timer/Counter 1, supports 2 channels hires-PWM
+/**
+ * @brief Abstraction of Timer/Counter 1, supports 2 channels hires-PWM
+ * 
+ */
 class AvrTimer1 : public AvrTimerBase
 {
 protected:
-	uint16_t m_top;
-	bool m_enableA, m_enableB;
-	Polarity m_polA, m_polB;
-	uint8_t m_comA;
-	uint8_t m_comB;
+	uint16_t    m_top;
+	bool        m_enableA, m_enableB;
+	Polarity    m_polA, m_polB;
+	uint8_t     m_comA;
+	uint8_t     m_comB;
 
 	/// prescaler per clock-select value (see datasheet)
-	static constexpr uint32_t T1_div[] = { 0,1,8,64,256,1024 };
+	static constexpr uint32_t T1_div[] = { 1,1,8,64,256,1024 };
 
 	static constexpr uint8_t calc_cs( uint32_t rate );
 	static constexpr uint16_t calc_ocr( uint32_t rate );
-	static constexpr uint8_t calc_pre( uint32_t rate, uint32_t tickrate );
 
 	void setCR();
+	uint32_t init(uint8_t cs, uint16_t ocr, Polarity polA, Polarity polB );
 public:
-	/// type of callback function.
 	static const uint16_t OCR_MAX = 10000;
 	/// pointer to singleton instance, used by ISR
 	static AvrTimer1* theInstance;
 
 	AvrTimer1(void);
-	uint32_t init(uint8_t cs, uint16_t ocr, Polarity polA, Polarity polB );
-
 	void start(void);
 	void stop(void);
-
     void setPWM_A(uint16_t pwm, uint16_t top=INT16_MAX);
     void setPWM_B(uint16_t pwm, uint16_t top=INT16_MAX);
 
@@ -189,41 +191,39 @@ public:
 	 */
 	void begin(uint32_t rate, Polarity polA=Disabled, Polarity polB=Disabled )
 		{ init( calc_cs(rate), calc_ocr(rate), polA, polB ); }
-
 };
 
 
 /** @brief Abstraction of Timer/Counter 2 with async mode.
  * 
- * Application can define multiple callbacks, which will be called periodically.
  * The interrupts also maintain a `millis` counter like Arduino 
  * ... but this one survives sleep power save, if the clock is async
  */
 class AvrTimer2 : public AvrTimerBase 
 {
 protected:
-	bool    m_async;
-	uint8_t m_ocr;
-	uint8_t m_prescale;
-	isr_t 	m_isr;
+	bool        m_async;
+	uint8_t     m_ocr;
+	uint8_t     m_prescale;
+	isr_t 	    m_isr;
 	
 	/// prescaler per clock-select value (see datasheet)
-	static constexpr uint32_t T2_div[] = { 0,1,8,32,64,128,256,1024 };
+	static constexpr uint32_t T2_div[] = { 1,1,8,32,64,128,256,1024 };
 
 	static constexpr uint8_t calc_cs( uint32_t fclk, uint32_t rate );
 	static constexpr uint8_t calc_ocr( uint32_t fclk, uint32_t rate );
 	static constexpr uint8_t calc_pre( uint32_t rate, uint32_t tickrate );
 
+	uint32_t init(uint8_t cs, uint8_t ocr, uint8_t prescaler, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false);
 public:
 	/// pointer to singleton instance, used by ISR
 	static AvrTimer2* theInstance;
 	
 	AvrTimer2(void);
-	uint32_t init(uint8_t cs, uint8_t ocr, uint8_t prescaler, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false);
 
 	void start(void);
 	void stop(void);
-	void call_tasks(void);
+	void isr(void);
 	
 	/**
 	 * @brief initialize Timer2, but don't start interrupts yet
@@ -238,12 +238,12 @@ public:
 		{ init( calc_cs(fclk,rate), calc_ocr(fclk,rate), calc_pre(rate,tickrate?tickrate:rate), isr, fclk, async ); }
 };
 
+
 /////////////////////////////////////////////////////////////////////////////
 // private inline functions
 
-
 /**
- * @brief Calculate clock select value CSn[2:0] 
+ * @brief Calculate clock select value CSn[2:0], at compile time if possible 
  * 
  * @param rate  desired interrupt rate [Hz]
  * @return constexpr uint8_t  value for CS0[2:0] in TCCR0B
@@ -263,11 +263,12 @@ uint8_t AvrTimer0::calc_cs( uint32_t rate )
 	}
 }
 
+
 /**
- * @brief Calculate OCR value 
+ * @brief Calculate OCR value, at compile time if possible 
  * 
- * @param rate desired interrupt rate [Hz]
- * @return constexpr uint8_t  value to qwrite to OCR0
+ * @param rate  desired interrupt rate [Hz]
+ * @return constexpr uint8_t  divider ( 1 + value to write to OCR0A )
  */
 constexpr 
 uint8_t AvrTimer0::calc_ocr( uint32_t rate )
@@ -276,19 +277,6 @@ uint8_t AvrTimer0::calc_ocr( uint32_t rate )
 	
 	const uint8_t cs = calc_cs( rate );
 	return cs ? fclk / (rate * T0_div[cs]) : 0;
-}
-
-/**
- * @brief Calculate soft prescaler 
- * 
- * @param rate 		desired interrupt rate [Hz]
- * @param tickrate  desired rate for calling event function
- * @return constexpr uint8_t 
- */
-constexpr 
-uint8_t AvrTimer0::calc_pre( uint32_t rate, uint32_t tickrate )
-{
-	return rate / tickrate;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -306,6 +294,7 @@ uint8_t AvrTimer1::calc_cs( uint32_t rate )
 	else return 0;
 }
 
+
 constexpr 
 uint16_t AvrTimer1::calc_ocr( uint32_t rate )
 {
@@ -313,12 +302,6 @@ uint16_t AvrTimer1::calc_ocr( uint32_t rate )
 	
 	const uint8_t cs = calc_cs( rate );
 	return cs ? fclk / (rate * T1_div[cs]) : 0;
-}
-
-constexpr 
-uint8_t AvrTimer1::calc_pre( uint32_t rate, uint32_t tickrate )
-{
-	return rate / tickrate;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -335,17 +318,33 @@ uint8_t AvrTimer2::calc_cs( uint32_t fclk, uint32_t rate )
 	else return 0;
 }
 
+
 constexpr 
 uint8_t AvrTimer2::calc_ocr( uint32_t fclk, uint32_t rate )
 {
 	const uint8_t cs = calc_cs( fclk, rate );
+    /*
 	return cs ? fclk / (rate * T2_div[cs]) : 0;
+    */
+    const double _fclk = fclk;
+    const double _pre = T2_div[cs];
+    const double _tclk = _fclk / _pre;
+    const double _rate = rate;
+    const double _ocr = _tclk / _rate + 0.5;
+    return cs ? floor(_ocr) : 0;
 }
 
+/**
+ * @brief Calculate soft prescaler, at compile time if possible 
+ * 
+ * @param rate 		desired interrupt rate [Hz]
+ * @param tickrate  desired rate for calling event functions
+ * @return constexpr uint8_t   # of interrupts per call to event functions
+ */
 constexpr 
 uint8_t AvrTimer2::calc_pre( uint32_t rate, uint32_t tickrate )
 {
-	return rate / tickrate;	
+	return rate / tickrate;
 }
 
 #endif // AvrTIMERS_H_

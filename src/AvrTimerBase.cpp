@@ -1,11 +1,10 @@
 /**
  * @file 		  AvrTimerBase.cpp
- * Project		: --
- * @author		: Bernd Waldmann
+ * @author		  Bernd Waldmann
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimerBase.cpp 1057 2021-06-01 17:32:19Z  $
+ * This Revision: $Id: AvrTimerBase.cpp 1236 2021-08-16 09:24:37Z  $
  *
  * @brief  Abstraction for AVR Timer/Counters, for periodic interrupts
  */ 
@@ -63,18 +62,20 @@ AvrTimerBase::AvrTimerBase(void) : m_millis(0), m_handle_millis(false)
 /// @brief	Register a callback function.
 void AvrTimerBase::add_task(
 	uint16_t scale,	///< call every `scale` interrupt cycle 
-	callback_t isr, ///< the callback function
+	callback_t cb, ///< the callback function
 	void* arg		///<  generic pointer argument to be passed to callback function (e.g. instance pointer)
 	)
 {
 	if (m_nTasks < MAX_TIMER_TASKS) {
 		m_tasks[m_nTasks].count = 0;
 		m_tasks[m_nTasks].scale = scale;
-		m_tasks[m_nTasks].callback = isr;
+		m_tasks[m_nTasks].callback = cb;
 		m_tasks[m_nTasks].arg = arg;
 		m_nTasks++;
 	} else {
+#if DEBUG_AVRTIMERS
 		DEBUG_PRINT( "Too many timer tasks!\r\n" );
+#endif
 	}
 }
 
