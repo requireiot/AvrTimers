@@ -7,7 +7,7 @@
             "label": "make",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}/examples"
+                "cwd": "${workspaceRoot}/examples/avr"
             },
             "command": "make",
             "args": [
@@ -27,7 +27,7 @@
             "problemMatcher": {
                 "owner": "cpp",
                 "fileLocation": [
-                    "relative", "${workspaceRoot}/examples"
+                    "relative", "${workspaceRoot}/examples/avr"
                 ],
                 "pattern": {
                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
@@ -43,7 +43,7 @@
             "label": "clean",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}/examples"
+                "cwd": "${workspaceRoot}/examples/avr"
             },
             "command": "make",
             "args": [
@@ -75,7 +75,7 @@
             "label": "upload",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}/examples"
+                "cwd": "${workspaceRoot}/examples/avr"
             },
             "command": "make",
             "args": [

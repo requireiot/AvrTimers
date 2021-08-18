@@ -4,7 +4,7 @@
 # Created	: 23.04.2021
 # Tabsize	: 4
 #
-# This Revision: $Id: Makefile 1087 2021-06-09 09:32:32Z  $
+# This Revision: $Id: Makefile 1239 2021-08-18 08:09:26Z  $
 
 ## ----- General Flags
 
@@ -19,8 +19,9 @@ CPPSOURCES = main.cpp AvrUART.cpp AvrTimerBase.cpp AvrTimer0.cpp AvrTimer1.cpp A
 CSOURCES = 
 ASOURCES = 
 
-SHAREDPATH = ../../
-include ../../mk.d/bw-avr-defines.mk
+SHAREDPATH = ../../../
+include $(SHAREDPATH)mk.d/bw-avr-defines.mk
+# uncomment the next line if you want a detailed assembler listing
 #COMMON_Cxx += -Wa,-adhln=$(*F).s -g -fverbose-asm
-include ../../mk.d/fuses-ATmega328p-intRC.mk
-include ../../mk.d/bw-avr-rules.mk
+include $(SHAREDPATH)mk.d/fuses-ATmega328p-intRC.mk
+include $(SHAREDPATH)mk.d/bw-avr-rules.mk
