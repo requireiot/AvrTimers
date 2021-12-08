@@ -4,7 +4,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer0.cpp 1236 2021-08-16 09:24:37Z  $
+ * This Revision: $Id: AvrTimer0.cpp 1303 2021-12-08 10:11:49Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 0, for periodic interrupts and PWM.
  */ 
@@ -108,9 +108,7 @@ uint32_t AvrTimer0::init(
 	Polarity polB	///< polarity of PWM output OC0B
 	)
 {
-	if (cs==0) {	// T0 rate too low
-		return 0;
-	}
+	if (cs==0) return 0;	// T0 rate too low
 
     PRR &= ~_BV(PRTIM0);
 
@@ -137,8 +135,6 @@ uint32_t AvrTimer0::init(
 
 	TIFR0  = _BV(TOV0)|_BV(OCF0A)|_BV(OCF0B);	// clear interrupts
 
-#if DEBUG_AVRTIMERS
-
 	if (arate <= 1000) {
 		m_MillisPerTick = 1000 / arate;
 		m_TicksPerMilli = 1;
@@ -147,12 +143,12 @@ uint32_t AvrTimer0::init(
 		m_MillisPerTick = 0;
 	}
 
+#if DEBUG_AVRTIMERS
 	DEBUG_PRINTF(" T0: F=%lu, CS=%u, OCR=%u, rate is %lu, ",
 		fclk, (unsigned)cs, (unsigned)ocr, arate );
 	DEBUG_PRINTF("%d %s\r\n", 
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,
 		m_MillisPerTick ? "ms/t" : "t/ms" );
-
 #endif // DEBUG_AVRTIMERS
 
 	return arate;

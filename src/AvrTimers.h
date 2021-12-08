@@ -4,7 +4,7 @@
  * Created		: 07-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimers.h 1236 2021-08-16 09:24:37Z  $
+ * This Revision: $Id: AvrTimers.h 1303 2021-12-08 10:11:49Z  $
  */ 
 
 /*
@@ -144,9 +144,10 @@ public:
 	 * @brief Initialize Timer0, but don't start interrupts yet
 	 * @param rate  desired interrupt rate [Hz]
 	 * @param polB  polarity of OC0B 
+	 * @return actual interrupt rate [Hz]
 	 */
-	void begin(uint32_t rate, Polarity polB=Disabled )	
-		{ init( calc_cs(rate), calc_ocr(rate), polB ); }
+	uint32_t begin(uint32_t rate, Polarity polB=Disabled )	
+		{ return init( calc_cs(rate), calc_ocr(rate), polB ); }
 };
 
 
@@ -188,9 +189,10 @@ public:
 	 * @param rate 	desired interrupt rate [Hz]
 	 * @param polA 	polarity of OC1A
 	 * @param polB  polarity of OC1B
+	 * @return actual interrupt rate [Hz]
 	 */
-	void begin(uint32_t rate, Polarity polA=Disabled, Polarity polB=Disabled )
-		{ init( calc_cs(rate), calc_ocr(rate), polA, polB ); }
+	uint32_t begin(uint32_t rate, Polarity polA=Disabled, Polarity polB=Disabled )
+		{ return init( calc_cs(rate), calc_ocr(rate), polA, polB ); }
 };
 
 
@@ -214,6 +216,7 @@ protected:
 	static constexpr uint8_t calc_ocr( uint32_t fclk, uint32_t rate );
 	static constexpr uint8_t calc_pre( uint32_t rate, uint32_t tickrate );
 
+	uint32_t set_rate(uint8_t cs, uint8_t ocr, uint8_t prescaler, uint32_t fclk=F_CPU, bool async=false);
 	uint32_t init(uint8_t cs, uint8_t ocr, uint8_t prescaler, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false);
 public:
 	/// pointer to singleton instance, used by ISR
@@ -232,10 +235,13 @@ public:
 	 * @param tickrate 	desired rate to call the callback functions [Hz]
 	 * @param isr 		function to call for each interrupt, from ISR
 	 * @param fclk 		clock frequency [Hz], default is CPU clock (F_CLK)
-	 * @param async 	set timer to async mode with watch crystal 
+	 * @param async 	set timer to async mode with watch crystal, default is false 
+	 * @return actual interrupt rate [Hz]
 	 */
-	void begin(uint32_t rate, uint32_t tickrate=0, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false)
-		{ init( calc_cs(fclk,rate), calc_ocr(fclk,rate), calc_pre(rate,tickrate?tickrate:rate), isr, fclk, async ); }
+	uint32_t begin(uint32_t rate, uint32_t tickrate=0, isr_t isr=NULL, uint32_t fclk=F_CPU, bool async=false)
+		{ return init( calc_cs(fclk,rate), calc_ocr(fclk,rate), calc_pre(rate,tickrate?tickrate:rate), isr, fclk, async ); }
+	uint32_t set_rate(uint32_t rate, uint32_t fclk=F_CPU, bool async=false)
+		{ return set_rate( calc_cs(fclk,rate), calc_ocr(fclk,rate), fclk, async ); }
 };
 
 

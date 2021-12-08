@@ -4,7 +4,7 @@
  * Created		: 7-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer1.cpp 1236 2021-08-16 09:24:37Z  $
+ * This Revision: $Id: AvrTimer1.cpp 1303 2021-12-08 10:11:49Z  $
  *
  * @brief  Abstraction for 16-bit AVR Timer/Counter 1. 
  */
@@ -111,8 +111,6 @@ uint32_t AvrTimer1::init(
 
 	TIFR1  = 0xFF;	// clear all interrupts
 
-#if DEBUG_AVRTIMERS
-
 	if (arate <= 1000) {
 		m_MillisPerTick = 1000 / arate;
 		m_TicksPerMilli = 1;
@@ -121,12 +119,12 @@ uint32_t AvrTimer1::init(
 		m_MillisPerTick = 0;
 	}
 
+#if DEBUG_AVRTIMERS
 	DEBUG_PRINTF(" T1: F=%lu, CS=%u, TOP=%u, rate %lu, ",
 		fclk, cs, m_top, arate);
 	DEBUG_PRINTF("%u %s\r\n",
 		m_MillisPerTick ? m_MillisPerTick : m_TicksPerMilli,
 		m_MillisPerTick ? "ms/t" : "t/ms" );
-
 #endif // DEBUG_AVRTIMERS
 
 	return arate;	
