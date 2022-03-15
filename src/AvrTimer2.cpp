@@ -5,7 +5,7 @@
  * Created		: 03-Oct-2019
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimer2.cpp 1303 2021-12-08 10:11:49Z  $
+ * This Revision: $Id: AvrTimer2.cpp 1368 2022-02-17 10:40:36Z  $
  *
  * @brief  Abstraction for AVR Timer/Counter 2, for periodic interrupts, also supports async mode.
  */ 
@@ -36,11 +36,15 @@ AvrTimer2* AvrTimer2::theInstance = NULL;
 
 //---------------------------------------------------------------------------
 
+#ifndef AVRTIMER2_CUSTOM_ISR
+
 ISR (TIMER2_COMPA_vect)
 {
 	sei();
 	AvrTimer2::theInstance->isr();
 }
+
+#endif // AVRTIMER2_CUSTOM_ISR
 
 /** 
  * @addtogroup AvrTimers

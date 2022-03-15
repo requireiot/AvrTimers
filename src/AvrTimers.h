@@ -4,7 +4,7 @@
  * Created		: 07-Mar-2020
  * Tabsize		: 4
  *
- * This Revision: $Id: AvrTimers.h 1303 2021-12-08 10:11:49Z  $
+ * This Revision: $Id: AvrTimers.h 1368 2022-02-17 10:40:36Z  $
  */ 
 
 /*
@@ -97,6 +97,7 @@ public:
 	AvrTimerBase(void);
 
 	uint32_t get_millis();
+	uint8_t get_millis_per_tick()  { return m_MillisPerTick; }
 	void add_task(uint16_t scale, callback_t cb, void* arg=NULL);
 	void call_tasks(void);
 	void handle_millis() { m_handle_millis=true; }
